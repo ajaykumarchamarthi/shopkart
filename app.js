@@ -9,6 +9,14 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(cors());
 
+app.use(express.json());
+
+// Importing User Related Routes
+
+const userRouter = require("./routes/userRoutes");
+
+app.use("/api/v1/users", userRouter);
+
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",

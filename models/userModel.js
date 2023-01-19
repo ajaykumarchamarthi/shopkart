@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const userSchema = mongoose.Schema({
   fullName: {
     type: String,
-    require: [true, "User must have a name"],
+    required: [true, "User must have a name"],
   },
   email: {
     type: String,
@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema({
       message: "Password are not same",
     },
   },
-  isVerified: {
+  isVerifiedUser: {
     type: Boolean,
     default: false,
   },
@@ -82,7 +82,10 @@ userSchema.methods.createPasswordResetToken = function () {
 userSchema.methods.createEmailVerificationToken = function () {
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
-  this.emailVerificationToken = crypto.createHash("256").toString("hex");
+  this.emailVerificationToken = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
 
   this.emailVerificationExpires = Date.now() + 10 * 60 * 60 * 1000;
   return verificationToken;

@@ -26,14 +26,11 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: "success",
     token,
-    data: {
-      user,
-    },
   });
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
+  await User.create({
     fullName: req.body.fullName,
     email: req.body.email,
     password: req.body.password,
@@ -48,8 +45,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   try {
     const emailVerificationEmail = `https://shopkart.com/emailVerification/${verificationToken}`;
-
-    await new Email(user, emailVerificationEmail).sendWelcome();
+    await new Email(user, emailVerificationEmail).sendEmailVerification();
 
     res.status(200).json({
       status: "success",
@@ -90,7 +86,7 @@ exports.emailVerification = catchAsync(async (req, res, next) => {
 
   verifiedUser.emailVerificationExpires = undefined;
 
-  verifiedUser.isVerified = true;
+  verifiedUser.isVerifiedUser = true;
 
   await verifiedUser.save({ validateBeforeSave: false });
 
@@ -117,7 +113,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  if (!user.isVerified) {
+  if (!user.isVerifiedUser) {
     return next(
       new AppError(
         "Email is not verified...Please verify Email to login successfully",
